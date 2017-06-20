@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define kMLInputDodgerRetractViewDefaultHeight 30.0f
+#define kMLInputDodgerRetractViewDefaultHeight 0.0f
 @interface MLInputDodgerRetractView : UIView
 
 @property (nonatomic, copy) void(^didClickRetractButtonBlock)();

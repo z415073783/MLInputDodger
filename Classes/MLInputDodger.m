@@ -35,7 +35,7 @@
 /**
  *  Common input accessory view who can hide input view
  */
-@property (nonatomic, strong) MLInputDodgerRetractView *retractInputAccessoryView;
+//@property (nonatomic, strong) MLInputDodgerRetractView *retractInputAccessoryView;
 
 @end
 
@@ -87,26 +87,26 @@
     return _dodgeViews;
 }
 
-- (MLInputDodgerRetractView *)retractInputAccessoryView
-{
-    if (!_retractInputAccessoryView) {
-        _retractInputAccessoryView = [MLInputDodgerRetractView new];
-        __weak __typeof(self)weakSelf = self;
-        [_retractInputAccessoryView setDidClickRetractButtonBlock:^{
-            __strong __typeof(weakSelf)sSelf = weakSelf;
-            [sSelf.firstResponderView resignFirstResponder];
-        }];
-    }
-    return _retractInputAccessoryView;
-}
+//- (MLInputDodgerRetractView *)retractInputAccessoryView
+//{
+//    if (!_retractInputAccessoryView) {
+//        _retractInputAccessoryView = [MLInputDodgerRetractView new];
+//        __weak __typeof(self)weakSelf = self;
+//        [_retractInputAccessoryView setDidClickRetractButtonBlock:^{
+//            __strong __typeof(weakSelf)sSelf = weakSelf;
+//            [sSelf.firstResponderView resignFirstResponder];
+//        }];
+//    }
+//    return _retractInputAccessoryView;
+//}
 
 #pragma mark - setter
 - (void)setFirstResponderView:(UIView *)firstResponderView
 {
     //remove the common input accessory view who can hide input view
-    if ([_firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
-        [_firstResponderView performSelector:@selector(setInputAccessoryView:) withObject:nil];
-    }
+//    if ([_firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
+//        [_firstResponderView performSelector:@selector(setInputAccessoryView:) withObject:nil];
+//    }
     
     _firstResponderView = firstResponderView;
     
@@ -121,11 +121,11 @@
             return;
         }
         
-        UIView *dodgeView = [self currentDodgeView];
-        if (dodgeView&&!dodgeView.dontUseDefaultRetractViewAsDodgeViewForMLInputDodger) {
-            self.retractInputAccessoryView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, kMLInputDodgerRetractViewDefaultHeight);
-            [firstResponderView performSelector:@selector(setInputAccessoryView:) withObject:self.retractInputAccessoryView];
-        }
+//        UIView *dodgeView = [self currentDodgeView];
+//        if (dodgeView&&!dodgeView.dontUseDefaultRetractViewAsDodgeViewForMLInputDodger) {
+//            self.retractInputAccessoryView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, kMLInputDodgerRetractViewDefaultHeight);
+//            [firstResponderView performSelector:@selector(setInputAccessoryView:) withObject:self.retractInputAccessoryView];
+//        }
     }
 }
 
@@ -291,9 +291,9 @@
         CGFloat keyboardOrginY = self.inputViewFrame.origin.y;
         //If the input accessory view is common retract view, we ignore it's height
         //Because it's a little button, this is more appropriate
-        if ([self.firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
-            keyboardOrginY+= CGRectGetHeight(self.retractInputAccessoryView.frame);
-        }
+//        if ([self.firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
+//            keyboardOrginY+= CGRectGetHeight(self.retractInputAccessoryView.frame);
+//        }
         
         //Find the position which must be display
         CGFloat shiftHeight = self.firstResponderView.shiftHeightAsFirstResponderForMLInputDodger;
@@ -336,11 +336,23 @@
 /**
  *  do dodge with common view, change it's frame
  */
+float offset = 0;
+
 - (void)doDodgeWithAnimated:(BOOL)animated
 {
+    
     UIView *dodgeView = [self currentDodgeView];
     if (!dodgeView) {
         return;
+    }
+    //xib文件下出现坐标偏移规避
+    NSLog(@"%@,%f",dodgeView, dodgeView.frame.origin.y);
+    if (dodgeView.frame.origin.y>0)
+    {
+        offset = dodgeView.frame.origin.y;
+    }else if (dodgeView.frame.origin.y == 0)
+    {
+        offset = 0;
     }
     
     if ([dodgeView isKindOfClass:[UIScrollView class]]) {
@@ -350,8 +362,14 @@
     
     void(^dodgeBlock)(CGFloat) = ^(CGFloat completeY){
         CGRect frame = dodgeView.frame;
-        frame.origin.y = completeY;
+        //重新计算坐标
         
+        frame.origin.y = completeY==0?offset:completeY;
+        //清除记录坐标
+        if (completeY == 0)
+        {
+            offset = 0;
+        }
         //see:https://github.com/molon/MLInputDodger/issues/23#issuecomment-173836788
         //Because when use SouGou input,it would add a spring animation to dodge view.
         //So we need to remove it.
@@ -397,9 +415,9 @@
         CGFloat keyboardOrginY = self.inputViewFrame.origin.y;
         //If the input accessory view is common retract view, we ignore it's height
         //Because it's a little button, this is more appropriate
-        if ([self.firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
-            keyboardOrginY+= CGRectGetHeight(self.retractInputAccessoryView.frame);
-        }
+//        if ([self.firstResponderView.inputAccessoryView isEqual:self.retractInputAccessoryView]) {
+//            keyboardOrginY+= CGRectGetHeight(self.retractInputAccessoryView.frame);
+//        }
         
         //Find the position which must be display
         CGFloat shiftHeight = self.firstResponderView.shiftHeightAsFirstResponderForMLInputDodger;
